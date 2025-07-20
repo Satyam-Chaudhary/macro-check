@@ -9,34 +9,10 @@ client = AsyncOpenAI(
     api_key=settings.OPENROUTER_API_KEY,
 )
 
+from app.llm.prompts import SYSTEM_PROMPT, SUMMARY_SYSTEM_PROMPT
+
 #system prompt for the LLM
-SYSTEM_PROMPT = """
-You are a helpful nutrition assistant. Your task is to analyze a user's description of a meal.
-
-First, determine if the user's input is a plausible description of food.
-- If the input is nonsensical, random characters, or not food-related (e.g., "kjnk", "asdfg", "a car"), respond ONLY with a JSON object: {"error": "Invalid food description."}
-- If the input is a plausible food description, respond ONLY with a valid JSON object containing these keys: "calories", "protein", "carbs", "fat", "enriched_description".
-
-Example 1 (Valid food):
-User: "2 eggs n toast"
-Assistant: {
-    "calories": 350,
-    "protein": 15,
-    "carbs": 25,
-    "fat": 20,
-    "enriched_description": "2 Scrambled Eggs with 1 Slice of Whole Wheat Toast"
-}
-
-Example 2 (Invalid food):
-User: "kjnk"
-Assistant: {"error": "Invalid food description."}
-"""
-
 async def get_macros_from_description(description: str) -> dict | None:
-    """
-    Sends a food description to the Kimi model via OpenRouter and gets
-    estimated nutritional information using the OpenAI library.
-    """
     try:
         completion = await client.chat.completions.create(
             model=settings.OPENROUTER_MODEL_NAME,
@@ -44,7 +20,8 @@ async def get_macros_from_description(description: str) -> dict | None:
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": description}
-            ]
+            ],
+            temperature=0.2
         )
         
         json_content_string = completion.choices[0].message.content
@@ -65,4 +42,25 @@ async def get_macros_from_description(description: str) -> dict | None:
 
     except Exception as e:
         print(f"An error occurred while communicating with the LLM: {e}")
-        return None
+        return None\
+        
+
+
+async def get_weekly_summary_from_llm(summary_data: dict) -> str:
+    try:
+        user_content = json.dumps(summary_data, default=str)
+        
+        completion = await client.chat.completions.create(
+            model=settings.OPENROUTER_MODEL_NAME,
+            messages=[
+                {"role": "system", "content": SUMMARY_SYSTEM_PROMPT},
+                {"role": "user", "content": user_content}
+            ],
+            temperature=0.7, # this will add some creativity
+        )
+        
+        return completion.choices[0].message.content.strip()
+
+    except Exception as e:
+        print(f"An error occurred while generating summary: {e}")
+        return "Could not generate a summary at this time."

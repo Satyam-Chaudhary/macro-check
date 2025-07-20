@@ -7,14 +7,16 @@ from collections import defaultdict
 from app.db.session import get_db, redis_client
 from app.db import models
 from app.schemas.analytics import WeeklySummary, DailySummary
-from app.crud import crud_log, crud_goal  # Import crud_goal
+from app.crud import crud_log, crud_goal  
 from app.api.v1.endpoints.auth import get_current_user
 from app.schemas.log import Log
+from app.llm import client as llm_client
+
 
 router = APIRouter()
 
 @router.get("/weekly-summary", response_model=WeeklySummary)
-def get_weekly_summary(
+async def get_weekly_summary(
     end_date_str: date = Depends(lambda: date.today()),
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
@@ -38,18 +40,21 @@ def get_weekly_summary(
     # --- Basic Analytics ---
     total_logs = len(logs)
     if total_logs == 0:
-        # Return a default summary if no logs exist
-        return WeeklySummary(
+        # If no logs, create a default summary object with a simple message
+        summary = WeeklySummary(
             start_date=start_date, end_date=end_date, total_logs=0, total_calories=0,
             avg_daily_calories=0, avg_daily_protein=0, avg_daily_carbs=0, avg_daily_fat=0,
-            days_calorie_goal_met=0, avg_calorie_surplus_deficit=0, avg_protein_surplus_deficit=0
+            days_calorie_goal_met=0, avg_calorie_surplus_deficit=0, avg_protein_surplus_deficit=0,
+            natural_language_summary="No food was logged this week. Log some meals to get a summary!"
         )
+        
+        redis_client.set(cache_key, summary.model_dump_json(), ex=3600)
+        return summary
         
     total_calories = sum(log.calories for log in logs)
     total_protein = sum(log.protein for log in logs)
     num_days_with_logs = len(set(log.date for log in logs))
     
-    #Target Comparison Logic
     goals_dict = {goal.date: goal for goal in goals}
     daily_totals = defaultdict(lambda: {"calories": 0, "protein": 0})
     for log in logs:
@@ -70,7 +75,7 @@ def get_weekly_summary(
                 days_calorie_goal_met += 1
 
     
-    summary = WeeklySummary(
+    numerical_summary = WeeklySummary(
         start_date=start_date,
         end_date=end_date,
         total_logs=total_logs,
@@ -81,12 +86,21 @@ def get_weekly_summary(
         avg_daily_fat=sum(l.fat for l in logs) / num_days_with_logs if num_days_with_logs > 0 else 0,
         days_calorie_goal_met=days_calorie_goal_met,
         avg_calorie_surplus_deficit=sum(calorie_diffs) / len(calorie_diffs) if calorie_diffs else 0,
-        avg_protein_surplus_deficit=sum(protein_diffs) / len(protein_diffs) if protein_diffs else 0
+        avg_protein_surplus_deficit=sum(protein_diffs) / len(protein_diffs) if protein_diffs else 0,
+        natural_language_summary="" # Placeholder
     )
 
-    redis_client.set(cache_key, summary.model_dump_json(), ex=3600)
+    print("--- CALLING LLM FOR WEEKLY SUMMARY ---")
     
-    return summary
+    llm_summary_text = await llm_client.get_weekly_summary_from_llm(numerical_summary.model_dump())
+    
+    
+    final_summary = numerical_summary.model_copy(update={"natural_language_summary": llm_summary_text})
+
+    # Cache the final, complete summary
+    redis_client.set(cache_key, final_summary.model_dump_json(), ex=3600)
+    
+    return final_summary
 
 @router.get("/daily-summary", response_model=DailySummary)
 def get_daily_summary(

@@ -17,6 +17,8 @@ class WeeklySummary(BaseModel):
     avg_calorie_surplus_deficit: float
     avg_protein_surplus_deficit: float
 
+    natural_language_summary: str
+
 class DailySummary(BaseModel):
     date: date
     

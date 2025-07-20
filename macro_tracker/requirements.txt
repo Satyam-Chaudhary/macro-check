@@ -31,3 +31,7 @@ requests
 rich
 
 openai
+
+#testing
+pytest
+pytest-asyncio
