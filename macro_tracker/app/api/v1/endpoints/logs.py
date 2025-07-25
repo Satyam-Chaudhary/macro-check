@@ -17,15 +17,31 @@ from app.schemas.llm import FoodParseRequest
 router = APIRouter()
 
 #Helper function to clear relevant caches.
+# In app/api/v1/endpoints/logs.py
+
 def invalidate_caches(user_id: int, log_date: date):
+    """Helper function to clear all relevant caches for a given day with debug logging."""
+    print("\n--- INVALIDATING CACHES ---")
+    
+    # 1. Construct all the keys exactly as they are in the GET endpoints
+    logs_cache_key = f"logs:{user_id}:{log_date}"
+    
     end_date = log_date
     start_date = end_date - timedelta(days=6)
-    weekly_cache_key = f"summary_v2:{user_id}:{start_date}:{end_date}"
-    daily_cache_key = f"daily_summary:{user_id}:{log_date}"
+    weekly_cache_key = f"summary_v3:{user_id}:{start_date}:{end_date}"
     
-    redis_client.delete(weekly_cache_key, daily_cache_key)
-    print(f"--- CACHES INVALIDATED for {log_date} ---")
+    daily_cache_key = f"daily_summary:{user_id}:{log_date}"
 
+    # 2. Print the keys we are about to delete
+    print(f"  - Attempting to delete key: {logs_cache_key}")
+    print(f"  - Attempting to delete key: {weekly_cache_key}")
+    print(f"  - Attempting to delete key: {daily_cache_key}")
+    
+    # 3. Call delete and print how many keys were actually deleted
+    keys_to_delete = [logs_cache_key, weekly_cache_key, daily_cache_key]
+    num_deleted = redis_client.delete(*keys_to_delete)
+    
+    print(f"--- Redis reported {num_deleted} key(s) deleted for date: {log_date} ---\n")
 @router.post("/manual", response_model=Log)
 def create_manual_log_entry(
     *,
@@ -60,9 +76,11 @@ async def create_llm_log_entry(
             status_code=400,
             detail=f"Invalid food description: '{request.description}' could not be processed."
         )
+    
+    log_date = request.date if request.date is not None else date.today()
 
     log_in = LogCreate(
-        date=date.today(),
+        date=log_date,
         meal_type=request.meal_type,
         description=parsed_data.get("enriched_description"), 
         calories=parsed_data.get("calories"),
@@ -113,16 +131,7 @@ def delete_log_entry(
     if not deleted_log:
         raise HTTPException(status_code=404, detail="Log not found.")
     
-    # Invalidate caches for the date the log was on
-    log_date = deleted_log.date
-    end_date = log_date
-    start_date = end_date - timedelta(days=6)
-    weekly_cache_key = f"summary_v2:{current_user.id}:{start_date}:{end_date}"
-    daily_cache_key = f"daily_summary:{current_user.id}:{log_date}"
-    
-    redis_client.delete(weekly_cache_key)
-    redis_client.delete(daily_cache_key)
-    
-    print(f"--- CACHES INVALIDATED for {log_date} ---")
+    # Use the helper function to ensure ALL caches are cleared
+    invalidate_caches(user_id=current_user.id, log_date=deleted_log.date)
     
     return {"detail": "Log deleted successfully"}
