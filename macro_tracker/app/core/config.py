@@ -10,11 +10,18 @@ ENV_PATH = BASE_DIR / ".env"
 load_dotenv(dotenv_path=ENV_PATH)
 
 class Settings(BaseSettings):
+    #SUPABASE CREDENTIALS
+    SUPABASE_URL: str
+    SUPABASE_KEY: str
+    SUPABASE_SERVICE_KEY: str
+    # SUPABASE_JWT_SECRET: str
+
+    #SUPABASE DB moved from sqlite
     DATABASE_URL: str
     
     # JWT Settings
     SECRET_KEY: str
-    ALGORITHM: str = "HS256"
+    ALGORITHM: str = "ES256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     OPENROUTER_API_KEY: str

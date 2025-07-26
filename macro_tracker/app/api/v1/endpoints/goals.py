@@ -7,7 +7,8 @@ from app.db.session import get_db, redis_client
 from app.schemas.goal import Goal, GoalCreate
 from app.crud import crud_goal
 
-from app.api.v1.endpoints.auth import get_current_user
+# from app.api.v1.endpoints.auth import get_current_user
+from app.core.dependencies import get_current_user
 
 from app.db import models
 

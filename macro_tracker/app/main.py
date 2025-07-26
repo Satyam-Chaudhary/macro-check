@@ -10,7 +10,9 @@ app = FastAPI(title="Macro Check API")
 # print(f"INFO:     FastAPI is connecting to database: {settings.DATABASE_URL}")
 # print("---" * 10)
 
-app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
+
+
+# app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"]) ## moved to supabase
 app.include_router(logs.router, prefix="/api/v1/logs", tags=["logs"])
 app.include_router(goals.router, prefix="/api/v1/goals", tags=["goals"])
 app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["analytics"])

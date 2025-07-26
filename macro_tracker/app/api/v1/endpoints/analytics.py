@@ -8,7 +8,10 @@ from app.db.session import get_db, redis_client
 from app.db import models
 from app.schemas.analytics import WeeklySummary, DailySummary
 from app.crud import crud_log, crud_goal  
-from app.api.v1.endpoints.auth import get_current_user
+
+# from app.api.v1.endpoints.auth import get_current_user
+from app.core.dependencies import get_current_user
+
 from app.schemas.log import Log
 from app.llm import client as llm_client
 

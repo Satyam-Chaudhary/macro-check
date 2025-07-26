@@ -35,3 +35,5 @@ openai
 #testing
 pytest
 pytest-asyncio
+
+supabase

@@ -5,7 +5,8 @@ from app.db.session import get_db
 from app.db import models
 from app.schemas.llm import FoodParseRequest
 from app.llm import client as llm_client
-from app.api.v1.endpoints.auth import get_current_user
+# from app.api.v1.endpoints.auth import get_current_user
+from app.core.dependencies import get_current_user
 
 router = APIRouter()
 
