@@ -28,6 +28,15 @@ def get_db():
 
 #for production -- inside docker container
 # Default to 'localhost' for local development, but use 'redis' for Docker.
-REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
-redis_client = redis.Redis(host=REDIS_HOST, port=6379, db=0, decode_responses=True)
+REDIS_HOST = os.environ.get("REDISHOST", "localhost")
+REDIS_PORT = int(os.environ.get("REDISPORT", 6379))
+REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD", None)
+
+redis_client = redis.Redis(
+    host=REDIS_HOST,
+    port=REDIS_PORT,
+    password=REDIS_PASSWORD,
+    db=0,
+    decode_responses=True
+)
 
