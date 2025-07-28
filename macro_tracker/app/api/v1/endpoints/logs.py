@@ -1,6 +1,7 @@
 import json
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from app.core.limiter import main_limiter #limiter from app.main.py for rate limiting
 from sqlalchemy.orm import Session
 from datetime import date, timedelta
 
@@ -43,6 +44,7 @@ def invalidate_caches(user_id: int, log_date: date):
     num_deleted = redis_client.delete(*keys_to_delete)
     
     print(f"--- Redis reported {num_deleted} key(s) deleted for date: {log_date} ---\n")
+
 @router.post("/manual", response_model=Log)
 def create_manual_log_entry(
     *,
@@ -54,15 +56,18 @@ def create_manual_log_entry(
     invalidate_caches(user_id=current_user.id, log_date=log_in.date)
     return log
 
+
 @router.post("/llm", response_model=Log)
+@main_limiter.limit("5/minute") 
 async def create_llm_log_entry(
     *,
+    request: Request,
     db: Session = Depends(get_db),
-    request: FoodParseRequest,
+    log_request: FoodParseRequest,
     current_user: models.User = Depends(get_current_user)
 ):
     print("--- CALLING LLM FOR MACRO AND DESCRIPTION ENRICHMENT ---")
-    parsed_data = await llm_client.get_macros_from_description(request.description)
+    parsed_data = await llm_client.get_macros_from_description(log_request.description)
     
     # Handle general failure from the client
     if not parsed_data:
@@ -75,14 +80,14 @@ async def create_llm_log_entry(
     if "error" in parsed_data:
         raise HTTPException(
             status_code=400,
-            detail=f"Invalid food description: '{request.description}' could not be processed."
+            detail=f"Invalid food description: '{log_request.description}' could not be processed."
         )
     
-    log_date = request.date if request.date is not None else date.today()
+    log_date = log_request.date if log_request.date is not None else date.today()
 
     log_in = LogCreate(
         date=log_date,
-        meal_type=request.meal_type,
+        meal_type=log_request.meal_type,
         description=parsed_data.get("enriched_description"), 
         calories=parsed_data.get("calories"),
         protein=parsed_data.get("protein"),

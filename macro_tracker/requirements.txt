@@ -40,3 +40,5 @@ supabase
 
 anyio[all]
 asgiref
+
+slowapi
