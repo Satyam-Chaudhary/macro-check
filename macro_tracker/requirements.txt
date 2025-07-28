@@ -37,3 +37,6 @@ pytest
 pytest-asyncio
 
 supabase
+
+anyio[all]
+asgiref

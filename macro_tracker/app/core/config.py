@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     #SUPABASE CREDENTIALS
     SUPABASE_URL: str
     SUPABASE_KEY: str
-    SUPABASE_SERVICE_KEY: str
+    # SUPABASE_SERVICE_KEY: str
     # SUPABASE_JWT_SECRET: str
 
     #SUPABASE DB moved from sqlite
