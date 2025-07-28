@@ -1,44 +1,33 @@
 # FastAPI and Server
 fastapi
 uvicorn[standard]
+slowapi
 
-# Database
+# Database (PostgreSQL driver)
 sqlalchemy
-alembic
-psycopg2-binary # For PostgreSQL later
+psycopg2-binary
 
-# LLM & HTTP Requests
-httpx
-
-# CLI Tool
-typer[all]
-
-# Settings Management
-# pydantic-settings
-python-dotenv
-
-#JWT and auth
-passlib[bcrypt]
+# Supabase and Auth
+supabase
 python-jose[cryptography]
 
-pydantic-[email]
-python-multipart
+# LLM and HTTP
+openai
+httpx
 
+# Caching
 redis
 
-requests
-
+# CLI and Testing Tools
+typer[all]
 rich
-
-openai
-
-#testing
+requests
 pytest
 pytest-asyncio
-
-supabase
-
 anyio[all]
 asgiref
 
-slowapi
+# Settings Management
+python-dotenv
+pydantic-settings
+python-multipart

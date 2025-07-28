@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.core.config import settings
+import os
 
 # --- ADD THIS DEBUG BLOCK ---
 print("---" * 20)
@@ -22,4 +23,11 @@ def get_db():
     finally:
         db.close()
 
-redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+# for localhosr
+# redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+
+#for production -- inside docker container
+# Default to 'localhost' for local development, but use 'redis' for Docker.
+REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
+redis_client = redis.Redis(host=REDIS_HOST, port=6379, db=0, decode_responses=True)
+
