@@ -8,7 +8,7 @@ services:
     env_file:
       - ./.env
     environment:
-      - REDIS_HOST=redis
+      - REDISHOST=redis
     depends_on:
       - redis
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload

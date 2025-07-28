@@ -17,6 +17,7 @@ async def get_macros_from_description(description: str) -> dict | None:
         completion = await client.chat.completions.create(
             model=settings.OPENROUTER_MODEL_NAME,
             response_format={"type": "json_object"},
+            max_tokens=512,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": description}
