@@ -12,7 +12,7 @@ class FoodLog(Base):
     meal_type = Column(String, nullable=False) # e.g., "Breakfast", "Lunch"
     description = Column(String, nullable=False)
     
-    calories = Column(Float, nullable=Falseem)
+    calories = Column(Float, nullable=False)
     protein = Column(Float, nullable=False)
     carbs = Column(Float, nullable=False)
     fat = Column(Float, nullable=False)
