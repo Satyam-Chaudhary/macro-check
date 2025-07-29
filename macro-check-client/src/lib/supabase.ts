@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import 'react-native-url-polyfill/auto'; // Required for Supabase to work in React Native
 
-// It's recommended to load these from environment variables
+
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_KEY!;
 

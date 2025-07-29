@@ -3,6 +3,10 @@ import AppNavigator from './src/navigation/AppNavigator';
 import { useSessionStore } from './src/store/useSessionStore';
 import { darkTheme as paperDarkTheme, lightTheme as paperLightTheme } from './src/theme/theme';
 import { NavigationContainer, DarkTheme as NavigationDarkTheme, DefaultTheme as NavigationDefaultTheme } from '@react-navigation/native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
+
 
 export default function App() {
   const { theme } = useSessionStore();
@@ -24,11 +28,12 @@ export default function App() {
   };
 
   return (
-    // Provide each component with its own, correctly formatted theme
+    <QueryClientProvider client={queryClient}>
     <PaperProvider theme={paperTheme}>
       <NavigationContainer theme={navigationTheme}>
         <AppNavigator />
       </NavigationContainer>
     </PaperProvider>
+    </QueryClientProvider>
   );
 }

@@ -12,7 +12,7 @@ const Tab = createBottomTabNavigator();
 
 function MainAppStack() {
   return (
-    <Tab.Navigator>
+    <Tab.Navigator screenOptions={{headerShown: false}}>
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
     </Tab.Navigator>
   );
