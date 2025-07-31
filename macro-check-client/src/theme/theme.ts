@@ -1,34 +1,36 @@
-import { MD3DarkTheme, MD3LightTheme, configureFonts } from 'react-native-paper';
+import { MD3DarkTheme, MD3LightTheme, configureFonts, MD3Theme } from 'react-native-paper';
+export type AppTheme = MD3Theme & {
+  colors: {
+    secondarySurface: string;
+  };
+};
 
 const fontConfig = {
   fontFamily: 'System',
 };
 
-// A more vibrant, high-contrast dark theme
-export const darkTheme = {
+export const darkTheme: AppTheme = {
   ...MD3DarkTheme,
   fonts: configureFonts({ config: fontConfig }),
   colors: {
     ...MD3DarkTheme.colors,
-    primary: '#E84D2E', // Vibrant Orange
-    accent: '#E84D2E',
-    background: '#000000', // True black background
-    surface: '#1E1E1E', // Slightly lighter surface for cards
-    primaryContainer: '#332200', // Dark orange for selected items
+    primary: '#E84D2E',
+    background: '#000000',
+    surface: '#1E1E1E',
+    primaryContainer: '#332200',
+    secondarySurface: '#212121', 
   },
 };
 
-// A light theme with the orange accent
-export const lightTheme = {
+export const lightTheme: AppTheme = {
   ...MD3LightTheme,
   fonts: configureFonts({ config: fontConfig }),
   colors: {
     ...MD3LightTheme.colors,
-    primary: '#E84D2E', // Vibrant Orange
-    accent: '#E84D2E',
+    primary: '#E84D2E',
     background: '#F7F7F7',
     surface: '#FFFFFF',
-    primaryContainer: '#FFF3E0', // Light orange for selected items
+    primaryContainer: '#FFF3E0',
+    secondarySurface: '#FFFFFF', 
   },
 };
-

@@ -7,9 +7,11 @@ import { PieChart } from 'react-native-gifted-charts';
 import { Header } from '@/components/dashboard/Header';
 import { DateScroller } from '@/components/dashboard/DateScroller';
 import { CustomProgressBar } from '@/components/dashboard/CustomProgressBar';
+import { CalorieChart } from '@/components/dashboard/CalorieChart';
+import { AppTheme } from '@/theme/theme';
 
 export default function DashboardScreen() {
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
 
   const dailySummary = {
     goal_calories: 2200, actual_calories: 850,
@@ -31,20 +33,10 @@ export default function DashboardScreen() {
 
       <Card style={styles.card}>
         <Card.Content>
-          <View style={styles.chartContainer}>
-            <PieChart
-              data={pieData}
-              donut
-              radius={90}
-              innerRadius={75}
-              centerLabelComponent={() => (
-                <View style={styles.chartCenterContainer}>
-                  <Text variant="displaySmall" style={styles.chartCenterText}>{dailySummary.actual_calories}</Text>
-                  <Text variant="bodyMedium" style={[styles.chartCenterSubText, { color: theme.colors.onSurfaceVariant }]}>Consumed</Text>
-                </View>
-              )}
-            />
-          </View>
+          <CalorieChart
+            actual={dailySummary.actual_calories}
+            goal={dailySummary.goal_calories}
+          />
         </Card.Content>
       </Card>
 

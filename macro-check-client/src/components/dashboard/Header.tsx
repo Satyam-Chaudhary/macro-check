@@ -4,9 +4,10 @@ import { Text, Avatar, useTheme } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { useSessionStore } from '@/store/useSessionStore';
+import { AppTheme } from '@/theme/theme';
 
 export const Header = () => {
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
   // Get the theme name ('dark' or 'light') and the toggle function from our store
   const { theme: currentThemeName, toggleTheme } = useSessionStore();
 

@@ -1,9 +1,10 @@
+import { AppTheme } from '@/theme/theme';
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 
 export const DateScroller = () => {
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
   const [selectedDay, setSelectedDay] = useState('WED');
   const weekDays = [
     { day: 'MON', date: '29' }, { day: 'TUE', date: '30' },

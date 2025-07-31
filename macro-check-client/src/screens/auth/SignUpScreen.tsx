@@ -37,9 +37,8 @@ export default function SignUpScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      {/* 1. Lottie Animation */}
       <LottieView
-        source={require('@/assets/animations/signup-animation.json')} // Add a new animation file for this screen
+        source={require('@/assets/animations/signup-animation.json')} 
         autoPlay
         loop
         style={styles.lottie}
@@ -68,7 +67,6 @@ export default function SignUpScreen() {
         style={styles.input}
         secureTextEntry={!isPasswordVisible}
         disabled={loading}
-        // 2. Show/Hide Password Icon
         right={
           <TextInput.Icon
             icon={isPasswordVisible ? 'eye-off' : 'eye'}
