@@ -2,10 +2,10 @@ import React from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { eachDayOfInterval, startOfWeek, format, isSameDay } from 'date-fns';
-import { useDate } from '@/context/DateContext';
+import { useDashboard } from '@/context/DashboardContext';
 export const DateScroller = () => {
   const theme = useTheme();
-  const { selectedDate, setSelectedDate } = useDate();
+  const { selectedDate, setSelectedDate } = useDashboard();
   
   const today = new Date();
   const weekStart = startOfWeek(today, { weekStartsOn: 1 });

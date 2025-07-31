@@ -2,18 +2,15 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, Avatar, useTheme } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {format} from 'date-fns';
+import { format } from 'date-fns';
 
 import { useSessionStore } from '@/store/useSessionStore';
-import { AppTheme } from '@/theme/theme';
+import { useDashboard } from '@/context/DashboardContext'; // 1. Import the context hook
 
-type HeaderProps = {
-  selectedDate: Date;
-};
-
-export const Header = ({selectedDate}:HeaderProps) => {
-  const theme = useTheme<AppTheme>();
+export const Header = () => {
+  const theme = useTheme();
   const { theme: currentThemeName, toggleTheme } = useSessionStore();
+  const { selectedDate } = useDashboard(); // 2. Get the date from the context
 
   return (
     <View style={styles.headerContainer}>
@@ -23,7 +20,6 @@ export const Header = ({selectedDate}:HeaderProps) => {
       </View>
 
       <View style={styles.rightContainer}>
-        {/* This TouchableOpacity makes the icon tappable */}
         <TouchableOpacity onPress={toggleTheme} style={styles.iconContainer}>
           <Icon
             name={currentThemeName === 'dark' ? 'weather-night' : 'weather-sunny'}

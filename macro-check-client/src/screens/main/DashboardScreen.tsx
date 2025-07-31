@@ -9,12 +9,14 @@ import { Header } from '@/components/dashboard/Header';
 import { DateScroller } from '@/components/dashboard/DateScroller';
 import { CustomProgressBar } from '@/components/dashboard/CustomProgressBar';
 import { CalorieChart } from '@/components/dashboard/CalorieChart';
-import { useDate } from '@/context/DateContext';
+import { useDashboard } from '@/context/DashboardContext';
+
+import { SetGoalSheetRef } from './SetGoalScreen';
 
 export default function DashboardScreen() {
   const theme = useTheme();
-  // Get the shared selectedDate from our context
-  const { selectedDate } = useDate();
+  const { selectedDate } = useDashboard();
+  const { setGoalSheetRef } = useDashboard();
 
   const formattedDate = format(selectedDate, 'yyyy-MM-dd');
   const { data: dailySummary, isLoading, isError, refetch, isRefetching } = useDailySummary(formattedDate);
@@ -50,6 +52,13 @@ export default function DashboardScreen() {
             />
             <Text variant="titleMedium" style={{textAlign: 'center', marginTop: 10}}>No Goal Set</Text>
             <Text style={{textAlign: 'center', marginTop: 5}}>Set a goal for this day to see your progress!</Text>
+            <Button 
+              mode="contained" 
+              style={{marginTop: 20}} 
+              onPress={() => setGoalSheetRef.current?.present()} // Use the ref here
+            >
+              Set Goal
+            </Button>
           </Card.Content>
         </Card>
       );
@@ -99,7 +108,7 @@ export default function DashboardScreen() {
       refreshing={isRefetching}
       ListHeaderComponent={
         <>
-          <Header selectedDate={selectedDate} />
+          <Header/>
           <DateScroller />
         </>
       }

@@ -7,15 +7,13 @@ import { format } from 'date-fns';
 
 import { LogSheetRef } from '@/screens/main/LogScreen';
 import { useDailySummary } from '@/hooks/useDailySummary';
-import { useDate } from '@/context/DateContext';
+import { useDashboard } from '@/context/DashboardContext';
 
-type CustomTabBarProps = BottomTabBarProps & {
-  logSheetRef: React.RefObject<LogSheetRef | null>;
-};
 
-export const CustomTabBar = ({ state, descriptors, navigation, logSheetRef }: CustomTabBarProps) => {
+
+export const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   const theme = useTheme();
-  const { selectedDate } = useDate();
+  const { selectedDate, logSheetRef } = useDashboard();
   const { data: dailySummary } = useDailySummary(format(selectedDate, 'yyyy-MM-dd'));
 
   const handleAddLogPress = () => {

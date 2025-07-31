@@ -8,9 +8,10 @@ type CustomProgressBarProps = {
 };
 
 export const CustomProgressBar = ({ progress, color, trackColor }: CustomProgressBarProps) => {
+  const cappedProgress = Math.min(1, progress);
   return (
     <View style={[styles.progressBarTrack, { backgroundColor: trackColor }]}>
-      <View style={[styles.progressBarFill, { backgroundColor: color, width: `${progress * 100}%` }]} />
+      <View style={[styles.progressBarFill, { backgroundColor: color, width: `${(cappedProgress * 100)}%` }]} />
     </View>
   );
 };
