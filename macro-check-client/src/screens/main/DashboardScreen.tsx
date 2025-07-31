@@ -1,19 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, Card, useTheme, Button } from 'react-native-paper';
 import LottieView from 'lottie-react-native';
 import { format } from 'date-fns'; 
-
 
 import { useDailySummary } from '@/hooks/useDailySummary';
 import { Header } from '@/components/dashboard/Header';
 import { DateScroller } from '@/components/dashboard/DateScroller';
 import { CustomProgressBar } from '@/components/dashboard/CustomProgressBar';
 import { CalorieChart } from '@/components/dashboard/CalorieChart';
+import { useDate } from '@/context/DateContext';
 
 export default function DashboardScreen() {
   const theme = useTheme();
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  // Get the shared selectedDate from our context
+  const { selectedDate } = useDate();
 
   const formattedDate = format(selectedDate, 'yyyy-MM-dd');
   const { data: dailySummary, isLoading, isError, refetch, isRefetching } = useDailySummary(formattedDate);
@@ -39,23 +40,21 @@ export default function DashboardScreen() {
       );
     }
     
-    // This is the "No Goal" case
     if (!dailySummary || dailySummary.goal_calories === 0) {
       return (
         <Card style={styles.card}>
           <Card.Content style={styles.centerContainer}>
             <LottieView 
-              source={require('@/assets/animations/loading.json')} // Add an animation for this
+              source={require('@/assets/animations/set-goal.json')} 
               autoPlay loop={false} style={{ width: 150, height: 150 }}
             />
             <Text variant="titleMedium" style={{textAlign: 'center', marginTop: 10}}>No Goal Set</Text>
-            <Text style={{textAlign: 'center', marginTop: 5}}>Set a goal for today to see your progress!</Text>
+            <Text style={{textAlign: 'center', marginTop: 5}}>Set a goal for this day to see your progress!</Text>
           </Card.Content>
         </Card>
       );
     }
 
-    // This is the main success view
     return (
       <>
         <Card style={styles.card}>
@@ -93,29 +92,26 @@ export default function DashboardScreen() {
   return (
     <FlatList
       style={[styles.container, { backgroundColor: theme.colors.background }]}
-      data={[]} // We use FlatList for its pull-to-refresh capabilities
+      data={[]}
       keyExtractor={() => 'dummy'}
-      // Pull-to-refresh logic
       renderItem={() => null} 
       onRefresh={refetch}
       refreshing={isRefetching}
       ListHeaderComponent={
         <>
           <Header selectedDate={selectedDate} />
-          <DateScroller selectedDate={selectedDate} onDateSelect={setSelectedDate} />
+          <DateScroller />
         </>
       }
       ListFooterComponent={renderContent()}
+      ListFooterComponentStyle={{ paddingBottom: 80 }} // Extra space to see content above tab bar
     />
   );
 }
 
-
 const styles = StyleSheet.create({
-  
   container: { flex: 1 },
   centerContainer: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -125,17 +121,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginBottom: 15,
   },
-  chartContainer: {
-    alignItems: 'center',
-    paddingVertical: 20,
-    height: 220,
-  },
-  chartCenterContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  chartCenterText: { fontWeight: 'bold' },
-  chartCenterSubText: { marginTop: 4 },
   macroContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -143,7 +128,7 @@ const styles = StyleSheet.create({
   },
   macroItem: {
     flex: 1,
-    alignItems: 'flex-start',
+    alignItems: 'center',
     paddingHorizontal: 5,
   },
   macroLabel: {

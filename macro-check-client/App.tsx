@@ -1,3 +1,7 @@
+import 'react-native-gesture-handler';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+
 import { PaperProvider } from 'react-native-paper';
 import AppNavigator from './src/navigation/AppNavigator';
 import { useSessionStore } from './src/store/useSessionStore';
@@ -28,12 +32,16 @@ export default function App() {
   };
 
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <QueryClientProvider client={queryClient}>
     <PaperProvider theme={paperTheme}>
+      <BottomSheetModalProvider>
       <NavigationContainer theme={navigationTheme}>
         <AppNavigator />
       </NavigationContainer>
+      </BottomSheetModalProvider>
     </PaperProvider>
     </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }

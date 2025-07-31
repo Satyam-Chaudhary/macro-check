@@ -1,26 +1,21 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
-import { eachDayOfInterval, startOfWeek, endOfWeek, format, isSameDay } from 'date-fns';
-
-type DateScrollerProps = {
-  selectedDate: Date;
-  onDateSelect: (date: Date) => void;
-};
-
-export const DateScroller = ({ selectedDate, onDateSelect }: DateScrollerProps) => {
+import { eachDayOfInterval, startOfWeek, format, isSameDay } from 'date-fns';
+import { useDate } from '@/context/DateContext';
+export const DateScroller = () => {
   const theme = useTheme();
+  const { selectedDate, setSelectedDate } = useDate();
   
-  // Dynamically generate the days for the current week
-  const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 }); // Monday
-  const weekEnd = endOfWeek(new Date(), { weekStartsOn: 1 });
-  const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
+  const today = new Date();
+  const weekStart = startOfWeek(today, { weekStartsOn: 1 });
+  const daysToShow = eachDayOfInterval({ start: weekStart, end: today });
 
   return (
     <View style={styles.dateScrollerContainer}>
       <Text variant="titleLarge">This Week</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 10 }}>
-        {weekDays.map((day) => {
+        {daysToShow.map((day) => {
           const isSelected = isSameDay(day, selectedDate);
           return (
             <TouchableOpacity
@@ -29,7 +24,7 @@ export const DateScroller = ({ selectedDate, onDateSelect }: DateScrollerProps) 
                 styles.dayContainer,
                 { backgroundColor: isSelected ? theme.colors.primaryContainer : theme.colors.surface },
               ]}
-              onPress={() => onDateSelect(day)}
+              onPress={() => setSelectedDate(day)}
             >
               <Text style={{ color: isSelected ? theme.colors.primary : theme.colors.onSurfaceVariant }}>
                 {format(day, 'EEE')}
@@ -46,19 +41,19 @@ export const DateScroller = ({ selectedDate, onDateSelect }: DateScrollerProps) 
 };
 
 const styles = StyleSheet.create({
-  dateScrollerContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 10,
-  },
-  dayContainer: {
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-    marginRight: 10,
-  },
-  dateText: {
-    marginTop: 5,
-    fontSize: 16,
-  },
+    dateScrollerContainer: {
+        paddingHorizontal: 20,
+        marginBottom: 10,
+      },
+      dayContainer: {
+        alignItems: 'center',
+        paddingVertical: 10,
+        paddingHorizontal: 15,
+        borderRadius: 20,
+        marginRight: 10,
+      },
+      dateText: {
+        marginTop: 5,
+        fontSize: 16,
+      },
 });
