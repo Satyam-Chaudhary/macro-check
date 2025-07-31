@@ -2,20 +2,24 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, Avatar, useTheme } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {format} from 'date-fns';
 
 import { useSessionStore } from '@/store/useSessionStore';
 import { AppTheme } from '@/theme/theme';
 
-export const Header = () => {
+type HeaderProps = {
+  selectedDate: Date;
+};
+
+export const Header = ({selectedDate}:HeaderProps) => {
   const theme = useTheme<AppTheme>();
-  // Get the theme name ('dark' or 'light') and the toggle function from our store
   const { theme: currentThemeName, toggleTheme } = useSessionStore();
 
   return (
     <View style={styles.headerContainer}>
       <View>
-        <Text variant="headlineSmall">31 August</Text>
-        <Text variant="bodyMedium">Sunday</Text>
+        <Text variant="headlineSmall">{format(selectedDate, 'do MMMM')}</Text>
+        <Text variant="bodyMedium">{format(selectedDate, 'EEEE')}</Text>
       </View>
 
       <View style={styles.rightContainer}>
@@ -29,7 +33,7 @@ export const Header = () => {
         </TouchableOpacity>
         <Avatar.Image
           size={40}
-          source={{ uri: 'https://i.pravatar.cc/150' }}
+          source={require('@/assets/pictures/icon.jpeg')}
           style={{ marginLeft: 15 }}
         />
       </View>

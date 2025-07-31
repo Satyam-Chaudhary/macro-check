@@ -15,9 +15,10 @@ apiClient.interceptors.request.use(
     
     if (session?.access_token) {
       // If the token exists, we add it to the Authorization header.
+      console.log(session.access_token)
       config.headers.Authorization = `Bearer ${session.access_token}`;
     }
-    return config;
+    return config
   },
   (error) => {
     return Promise.reject(error);

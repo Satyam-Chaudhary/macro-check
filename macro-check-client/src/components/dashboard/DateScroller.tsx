@@ -1,38 +1,45 @@
-import { AppTheme } from '@/theme/theme';
-import React, { useState } from 'react';
+import React from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
+import { eachDayOfInterval, startOfWeek, endOfWeek, format, isSameDay } from 'date-fns';
 
-export const DateScroller = () => {
-  const theme = useTheme<AppTheme>();
-  const [selectedDay, setSelectedDay] = useState('WED');
-  const weekDays = [
-    { day: 'MON', date: '29' }, { day: 'TUE', date: '30' },
-    { day: 'WED', date: '31' }, { day: 'THU', date: '01' },
-    { day: 'FRI', date: '02' }, { day: 'SAT', date: '03' },
-  ];
+type DateScrollerProps = {
+  selectedDate: Date;
+  onDateSelect: (date: Date) => void;
+};
+
+export const DateScroller = ({ selectedDate, onDateSelect }: DateScrollerProps) => {
+  const theme = useTheme();
+  
+  // Dynamically generate the days for the current week
+  const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 }); // Monday
+  const weekEnd = endOfWeek(new Date(), { weekStartsOn: 1 });
+  const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
   return (
     <View style={styles.dateScrollerContainer}>
-      <Text variant="titleLarge">Today</Text>
+      <Text variant="titleLarge">This Week</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 10 }}>
-        {weekDays.map((item) => (
-          <TouchableOpacity
-            key={item.day}
-            style={[
-              styles.dayContainer,
-              { backgroundColor: selectedDay === item.day ? theme.colors.primaryContainer : theme.colors.surface },
-            ]}
-            onPress={() => setSelectedDay(item.day)}
-          >
-            <Text style={{ color: selectedDay === item.day ? theme.colors.primary : theme.colors.onSurfaceVariant }}>
-              {item.day}
-            </Text>
-            <Text style={[ styles.dateText, { color: selectedDay === item.day ? theme.colors.primary : theme.colors.onSurface, fontWeight: selectedDay === item.day ? 'bold' : 'normal' }]}>
-              {item.date}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        {weekDays.map((day) => {
+          const isSelected = isSameDay(day, selectedDate);
+          return (
+            <TouchableOpacity
+              key={day.toString()}
+              style={[
+                styles.dayContainer,
+                { backgroundColor: isSelected ? theme.colors.primaryContainer : theme.colors.surface },
+              ]}
+              onPress={() => onDateSelect(day)}
+            >
+              <Text style={{ color: isSelected ? theme.colors.primary : theme.colors.onSurfaceVariant }}>
+                {format(day, 'EEE')}
+              </Text>
+              <Text style={[ styles.dateText, { color: isSelected ? theme.colors.primary : theme.colors.onSurface, fontWeight: isSelected ? 'bold' : 'normal' }]}>
+                {format(day, 'd')}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </ScrollView>
     </View>
   );

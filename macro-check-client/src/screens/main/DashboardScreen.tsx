@@ -1,70 +1,126 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { Text, Card, useTheme } from 'react-native-paper';
-import { PieChart } from 'react-native-gifted-charts';
+import React, { useState } from 'react';
+import { View, StyleSheet, FlatList } from 'react-native';
+import { Text, Card, useTheme, Button } from 'react-native-paper';
+import LottieView from 'lottie-react-native';
+import { format } from 'date-fns'; 
 
 
+import { useDailySummary } from '@/hooks/useDailySummary';
 import { Header } from '@/components/dashboard/Header';
 import { DateScroller } from '@/components/dashboard/DateScroller';
 import { CustomProgressBar } from '@/components/dashboard/CustomProgressBar';
 import { CalorieChart } from '@/components/dashboard/CalorieChart';
-import { AppTheme } from '@/theme/theme';
 
 export default function DashboardScreen() {
-  const theme = useTheme<AppTheme>();
+  const theme = useTheme();
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
-  const dailySummary = {
-    goal_calories: 2200, actual_calories: 850,
-    goal_protein: 200, actual_protein: 180,
-    goal_carbs: 200, actual_carbs: 90,
-    goal_fat: 70, actual_fat: 30,
-  };
+  const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+  const { data: dailySummary, isLoading, isError, refetch, isRefetching } = useDailySummary(formattedDate);
 
-  const remainingCalories = Math.max(0, dailySummary.goal_calories - dailySummary.actual_calories);
-  const pieData = [
-    { value: dailySummary.actual_calories, color: theme.colors.primary },
-    { value: remainingCalories, color: theme.colors.surfaceDisabled },
-  ];
-
-  return (
-    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Header />
-      <DateScroller />
-
-      <Card style={styles.card}>
-        <Card.Content>
-          <CalorieChart
-            actual={dailySummary.actual_calories}
-            goal={dailySummary.goal_calories}
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <View style={styles.centerContainer}>
+          <LottieView
+            source={require('@/assets/animations/loading.json')}
+            autoPlay loop style={{ width: 150, height: 150 }}
           />
-        </Card.Content>
-      </Card>
+        </View>
+      );
+    }
 
-      <Card style={styles.card}>
-        <Card.Content style={styles.macroContainer}>
-          <View style={styles.macroItem}>
-            <Text style={styles.macroLabel}>Protein</Text>
-            <CustomProgressBar progress={dailySummary.actual_protein / dailySummary.goal_protein} color="#E57373" trackColor={theme.colors.surfaceDisabled} />
-            <Text style={[styles.macroValue, { color: theme.colors.onSurfaceVariant }]}>{dailySummary.actual_protein} / {dailySummary.goal_protein}g</Text>
-          </View>
-          <View style={styles.macroItem}>
-            <Text style={styles.macroLabel}>Carbs</Text>
-            <CustomProgressBar progress={dailySummary.actual_carbs / dailySummary.goal_carbs} color="#81C784" trackColor={theme.colors.surfaceDisabled} />
-            <Text style={[styles.macroValue, { color: theme.colors.onSurfaceVariant }]}>{dailySummary.actual_carbs} / {dailySummary.goal_carbs}g</Text>
-          </View>
-          <View style={styles.macroItem}>
-            <Text style={styles.macroLabel}>Fat</Text>
-            <CustomProgressBar progress={dailySummary.actual_fat / dailySummary.goal_fat} color="#64B5F6" trackColor={theme.colors.surfaceDisabled} />
-            <Text style={[styles.macroValue, { color: theme.colors.onSurfaceVariant }]}>{dailySummary.actual_fat} / {dailySummary.goal_fat}g</Text>
-          </View>
-        </Card.Content>
-      </Card>
-    </ScrollView>
+    if (isError) {
+      return (
+        <View style={styles.centerContainer}>
+          <Text>Could not fetch summary data.</Text>
+          <Button onPress={() => refetch()}>Try Again</Button>
+        </View>
+      );
+    }
+    
+    // This is the "No Goal" case
+    if (!dailySummary || dailySummary.goal_calories === 0) {
+      return (
+        <Card style={styles.card}>
+          <Card.Content style={styles.centerContainer}>
+            <LottieView 
+              source={require('@/assets/animations/loading.json')} // Add an animation for this
+              autoPlay loop={false} style={{ width: 150, height: 150 }}
+            />
+            <Text variant="titleMedium" style={{textAlign: 'center', marginTop: 10}}>No Goal Set</Text>
+            <Text style={{textAlign: 'center', marginTop: 5}}>Set a goal for today to see your progress!</Text>
+          </Card.Content>
+        </Card>
+      );
+    }
+
+    // This is the main success view
+    return (
+      <>
+        <Card style={styles.card}>
+          <Card.Content>
+            <CalorieChart
+              actual={dailySummary.actual_calories}
+              goal={dailySummary.goal_calories}
+            />
+          </Card.Content>
+        </Card>
+
+        <Card style={styles.card}>
+          <Card.Content style={styles.macroContainer}>
+            <View style={styles.macroItem}>
+              <Text style={styles.macroLabel}>Protein</Text>
+              <CustomProgressBar progress={dailySummary.actual_protein / dailySummary.goal_protein} color="#E57373" trackColor={theme.colors.surfaceDisabled} />
+              <Text style={[styles.macroValue, { color: theme.colors.onSurfaceVariant }]}>{dailySummary.actual_protein} / {dailySummary.goal_protein}g</Text>
+            </View>
+            <View style={styles.macroItem}>
+              <Text style={styles.macroLabel}>Carbs</Text>
+              <CustomProgressBar progress={dailySummary.actual_carbs / dailySummary.goal_carbs} color="#81C784" trackColor={theme.colors.surfaceDisabled} />
+              <Text style={[styles.macroValue, { color: theme.colors.onSurfaceVariant }]}>{dailySummary.actual_carbs} / {dailySummary.goal_carbs}g</Text>
+            </View>
+            <View style={styles.macroItem}>
+              <Text style={styles.macroLabel}>Fat</Text>
+              <CustomProgressBar progress={dailySummary.actual_fat / dailySummary.goal_fat} color="#64B5F6" trackColor={theme.colors.surfaceDisabled} />
+              <Text style={[styles.macroValue, { color: theme.colors.onSurfaceVariant }]}>{dailySummary.actual_fat} / {dailySummary.goal_fat}g</Text>
+            </View>
+          </Card.Content>
+        </Card>
+      </>
+    );
+  };
+  
+  return (
+    <FlatList
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+      data={[]} // We use FlatList for its pull-to-refresh capabilities
+      keyExtractor={() => 'dummy'}
+      // Pull-to-refresh logic
+      renderItem={() => null} 
+      onRefresh={refetch}
+      refreshing={isRefetching}
+      ListHeaderComponent={
+        <>
+          <Header selectedDate={selectedDate} />
+          <DateScroller selectedDate={selectedDate} onDateSelect={setSelectedDate} />
+        </>
+      }
+      ListFooterComponent={renderContent()}
+    />
   );
 }
 
+
 const styles = StyleSheet.create({
+  
   container: { flex: 1 },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    minHeight: 300,
+  },
   card: {
     marginHorizontal: 20,
     marginBottom: 15,

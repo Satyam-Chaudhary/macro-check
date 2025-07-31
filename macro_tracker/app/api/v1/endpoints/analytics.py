@@ -107,13 +107,11 @@ async def get_weekly_summary(
 
 @router.get("/daily-summary", response_model=DailySummary)
 def get_daily_summary(
-    target_date: date = Depends(lambda: date.today()),
+    target_date: date,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    """
-    Provides a real-time summary of macros vs goals for a specific day.
-    """
+    
     cache_key = f"daily_summary:{current_user.id}:{target_date}"
     cached_summary = redis_client.get(cache_key)
     if cached_summary:
