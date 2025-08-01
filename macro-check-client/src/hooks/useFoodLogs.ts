@@ -12,13 +12,21 @@ const postAiLog = async (logData: any) => {
   return data;
 };
 
-export const useFoodLogs = (onSuccessCallback: () => void) => {
+const deleteLogApi = async (logId: number) => {
+  const { data } = await apiClient.delete(`/logs/${logId}`);
+  return data;
+};
+
+export const useFoodLogs = (onSuccessCallback?: () => void) => {
   const queryClient = useQueryClient();
 
   const commonMutationOptions = {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dailySummary'] });
-      onSuccessCallback();
+      queryClient.invalidateQueries({ queryKey: ['weeklySummary'] });
+      if (onSuccessCallback) {
+        onSuccessCallback();
+      }
     },
     onError: (error: any) => {
       const message = error.response?.data?.detail || "An error occurred. Please try again.";
@@ -36,10 +44,19 @@ export const useFoodLogs = (onSuccessCallback: () => void) => {
     ...commonMutationOptions,
   });
 
+  const deleteLogMutation = useMutation({ 
+    mutationFn: deleteLogApi,
+     ...commonMutationOptions 
+    });
+
+
   return {
     logManually: logManuallyMutation.mutate,
     isManualLoading: logManuallyMutation.isPending,
     logWithAi: logWithAiMutation.mutate,
     isAiLoading: logWithAiMutation.isPending,
+    deleteLog: deleteLogMutation.mutate, 
+    isDeleting: deleteLogMutation.isPending,
+    deletingLogId: deleteLogMutation.variables,
   };
 };

@@ -2,6 +2,7 @@ import { MD3DarkTheme, MD3LightTheme, configureFonts, MD3Theme } from 'react-nat
 export type AppTheme = MD3Theme & {
   colors: {
     secondarySurface: string;
+    tertiarySurface: string;
   };
 };
 
@@ -19,6 +20,7 @@ export const darkTheme: AppTheme = {
     surface: '#1E1E1E',
     primaryContainer: '#332200',
     secondarySurface: '#212121', 
+    tertiarySurface: '#1d1d1d9a', 
   },
 };
 
@@ -32,5 +34,6 @@ export const lightTheme: AppTheme = {
     surface: '#FFFFFF',
     primaryContainer: '#FFF3E0',
     secondarySurface: '#FFFFFF', 
+    tertiarySurface: '#FFFFFF',
   },
 };

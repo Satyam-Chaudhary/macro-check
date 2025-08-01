@@ -1,4 +1,10 @@
 // data str coming from backend
+export interface Log { // Add export here
+  id: number;
+  description: string;
+  meal_type: string;
+  calories: number;
+}
 export interface DailySummary {
   date: string;
   goal_calories: number;
@@ -13,5 +19,5 @@ export interface DailySummary {
   goal_fat: number;
   actual_fat: number;
   remaining_fat: number;
-  logs: any[]; 
+  logs: Log[];
 }

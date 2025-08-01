@@ -33,6 +33,7 @@ export const DateScroller = () => {
                 {format(day, 'd')}
               </Text>
             </TouchableOpacity>
+            
           );
         })}
       </ScrollView>
@@ -41,19 +42,24 @@ export const DateScroller = () => {
 };
 
 const styles = StyleSheet.create({
-    dateScrollerContainer: {
-        paddingHorizontal: 20,
-        marginBottom: 10,
-      },
-      dayContainer: {
-        alignItems: 'center',
-        paddingVertical: 10,
-        paddingHorizontal: 15,
-        borderRadius: 20,
-        marginRight: 10,
-      },
-      dateText: {
-        marginTop: 5,
-        fontSize: 16,
-      },
+  dateScrollerContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 10,
+    },
+    dayContainer: {
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 20,
+    marginRight: 10,
+    },
+    dateScrrollSecondContainer:{
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center', 
+    },
+    dateText: {
+    marginTop: 5,
+    fontSize: 16,
+    },
 });
