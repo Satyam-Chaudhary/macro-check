@@ -4,6 +4,10 @@ export interface Log { // Add export here
   description: string;
   meal_type: string;
   calories: number;
+  date: string;
+  protein: number;
+  carbs: number;
+  fat: number;
 }
 export interface DailySummary {
   date: string;

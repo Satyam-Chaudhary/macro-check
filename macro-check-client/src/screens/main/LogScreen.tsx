@@ -38,12 +38,12 @@ export const LogScreen = forwardRef<LogSheetRef>((props, ref) => {
     setFat("");
   };
 
-  const { logManually, isManualLoading, logWithAi, isAiLoading } = useFoodLogs(
-    () => {
+    const { logManually, isManualLoading, logWithAi, isAiLoading } = useFoodLogs({
+    onSuccessCallback: () => {
       bottomSheetModalRef.current?.dismiss();
       resetForm();
-    }
-  );
+    },
+  })
 
   React.useImperativeHandle(ref, () => ({
     present: () => bottomSheetModalRef.current?.present(),
@@ -53,7 +53,7 @@ export const LogScreen = forwardRef<LogSheetRef>((props, ref) => {
     logManually({
       date: format(selectedDate, "yyyy-MM-dd"),
       description,
-      mealType,
+      meal_type: mealType,
       calories: parseFloat(calories),
       protein: parseFloat(protein),
       carbs: parseFloat(carbs),

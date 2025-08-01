@@ -1,9 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
 import apiClient from '@/lib/api';
+import { Log, DailySummary } from '@/schemas/analytics';
 
+// --- API Functions ---
 const postManualLog = async (logData: any) => {
+  // console.log(logData)
   const { data } = await apiClient.post('/logs/manual', logData);
+  // console.log(data)
   return data;
 };
 
@@ -12,51 +16,93 @@ const postAiLog = async (logData: any) => {
   return data;
 };
 
-const deleteLogApi = async (logId: number) => {
-  const { data } = await apiClient.delete(`/logs/${logId}`);
+const deleteLogApi = async (log: Log) => {
+  const { data } = await apiClient.delete(`/logs/${log.id}`);
   return data;
 };
 
-export const useFoodLogs = (onSuccessCallback?: () => void) => {
+// --- Custom Hook ---
+export const useFoodLogs = (options?: { optimistic?: boolean; onSuccessCallback?: () => void }) => {
   const queryClient = useQueryClient();
+  // Default optimistic to false if not provided
+  const { optimistic = false, onSuccessCallback } = options || {};
 
-  const commonMutationOptions = {
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['dailySummary'] });
-      queryClient.invalidateQueries({ queryKey: ['weeklySummary'] });
-      if (onSuccessCallback) {
-        onSuccessCallback();
-      }
-    },
-    onError: (error: any) => {
-      const message = error.response?.data?.detail || "An error occurred. Please try again.";
-      Alert.alert("Error", message);
-    },
+  const handleError = (error: any) => {
+    const message = error.response?.data?.detail || "An error occurred. Please try again.";
+    Alert.alert("Error", message);
+  };
+
+   const onSuccess = () => {
+    // Invalidate all queries that start with 'dailySummary' or 'logHistory'
+    queryClient.invalidateQueries({ 
+      predicate: (query) => 
+        query.queryKey[0] === 'dailySummary' || query.queryKey[0] === 'logHistory' 
+    });
+    if (onSuccessCallback) onSuccessCallback();
   };
 
   const logManuallyMutation = useMutation({
     mutationFn: postManualLog,
-    ...commonMutationOptions,
+    onSuccess: (_data, variables) => {
+      const logDate = variables.date;
+      queryClient.invalidateQueries({ queryKey: ['dailySummary', logDate] });
+      queryClient.invalidateQueries({ queryKey: ['logHistory', logDate] });
+      if (onSuccessCallback) onSuccessCallback();
+    },
+    onError: handleError,
   });
 
   const logWithAiMutation = useMutation({
     mutationFn: postAiLog,
-    ...commonMutationOptions,
+    onSuccess: (_data, variables) => {
+      const logDate = variables.date;
+      queryClient.invalidateQueries({ queryKey: ['dailySummary', logDate] });
+      queryClient.invalidateQueries({ queryKey: ['logHistory', logDate] });
+      if (onSuccessCallback) onSuccessCallback();
+    },
+    onError: handleError,
   });
 
-  const deleteLogMutation = useMutation({ 
+  const deleteLogMutation = useMutation({
     mutationFn: deleteLogApi,
-     ...commonMutationOptions 
-    });
-
+    // onMutate will only be defined if the 'optimistic' option is true
+    onMutate: optimistic
+      ? async (deletedLog) => {
+          const queryKey = ['logHistory', deletedLog.date];
+          await queryClient.cancelQueries({ queryKey });
+          const previousLogs = queryClient.getQueryData<Log[]>(queryKey);
+          if (previousLogs) {
+            queryClient.setQueryData(
+              queryKey,
+              previousLogs.filter((log) => log.id !== deletedLog.id)
+            );
+          }
+          return { previousLogs };
+        }
+      : undefined,
+    onError: (err, variables, context: any) => {
+      // Only roll back if we made an optimistic update
+      if (optimistic && context?.previousLogs) {
+        const queryKey = ['logHistory', variables.date];
+        queryClient.setQueryData(queryKey, context.previousLogs);
+      }
+      handleError(err);
+    },
+    // onSettled runs after success or error, ensuring data is eventually consistent
+    onSettled: (_data, _error, variables) => {
+      const logDate = variables.date;
+      queryClient.invalidateQueries({ queryKey: ['logHistory', logDate] });
+      queryClient.invalidateQueries({ queryKey: ['dailySummary', logDate] });
+    },
+  });
 
   return {
     logManually: logManuallyMutation.mutate,
     isManualLoading: logManuallyMutation.isPending,
     logWithAi: logWithAiMutation.mutate,
     isAiLoading: logWithAiMutation.isPending,
-    deleteLog: deleteLogMutation.mutate, 
+    deleteLog: deleteLogMutation.mutate,
     isDeleting: deleteLogMutation.isPending,
-    deletingLogId: deleteLogMutation.variables,
+    deletingLogId: deleteLogMutation.variables?.id,
   };
 };

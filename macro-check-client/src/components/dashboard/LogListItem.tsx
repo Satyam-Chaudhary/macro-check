@@ -7,16 +7,17 @@ import { AppTheme } from '@/theme/theme';
 
 type LogListItemProps = {
   log: Log;
-  onDelete: (logId: number) => void;
-  isDeleting: boolean; 
+  onDelete: (log: Log) => void;
+  isDeleting?: Boolean;
 };
 
-export const LogListItem = ({ log, onDelete, isDeleting }: LogListItemProps) => {
+export const LogListItem = ({ log, onDelete, isDeleting = false}: LogListItemProps) => {
   const theme = useTheme<AppTheme>();
+  
 
-  const renderRightActions = (progress: Animated.AnimatedInterpolation<number>, dragX: Animated.AnimatedInterpolation<number>) => {
+ const renderRightActions = (progress: Animated.AnimatedInterpolation<number>, dragX: Animated.AnimatedInterpolation<number>) => {
     return (
-      <View style={styles.deleteAction}>
+      <View style={[styles.deleteAction, { borderTopRightRadius: 20, borderBottomRightRadius: 20 }]}>
         {isDeleting ? (
           <ActivityIndicator animating={true} color={theme.colors.onError} />
         ) : (
@@ -25,7 +26,7 @@ export const LogListItem = ({ log, onDelete, isDeleting }: LogListItemProps) => 
             iconColor={theme.colors.onError}
             containerColor={theme.colors.error}
             size={24}
-            onPress={() => onDelete(log.id)}
+            onPress={() => onDelete(log)}
           />
         )}
       </View>

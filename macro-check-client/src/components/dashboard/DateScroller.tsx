@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { eachDayOfInterval, startOfWeek, format, isSameDay } from 'date-fns';
 import { useDashboard } from '@/context/DashboardContext';
+
 export const DateScroller = () => {
   const theme = useTheme();
   const { selectedDate, setSelectedDate } = useDashboard();
@@ -14,7 +15,12 @@ export const DateScroller = () => {
   return (
     <View style={styles.dateScrollerContainer}>
       <Text variant="titleLarge">This Week</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 10 }}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollViewContent}
+      >
         {daysToShow.map((day) => {
           const isSelected = isSameDay(day, selectedDate);
           return (
@@ -33,7 +39,6 @@ export const DateScroller = () => {
                 {format(day, 'd')}
               </Text>
             </TouchableOpacity>
-            
           );
         })}
       </ScrollView>
@@ -45,21 +50,23 @@ const styles = StyleSheet.create({
   dateScrollerContainer: {
     paddingHorizontal: 20,
     marginBottom: 10,
-    },
-    dayContainer: {
+  },
+  scrollView: {
+    marginTop: 10,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+  dayContainer: {
     alignItems: 'center',
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 20,
     marginRight: 10,
-    },
-    dateScrrollSecondContainer:{
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center', 
-    },
-    dateText: {
+  },
+  dateText: {
     marginTop: 5,
     fontSize: 16,
-    },
+  },
 });

@@ -39,7 +39,13 @@ export const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
           
           const { options } = descriptors[route.key];
           const isFocused = state.index === index;
-          const iconName = route.name === "Home" ? "home-outline" : "chart-line";
+          const icons = {
+            Home: 'home-outline',
+            History: 'history',
+            Analytics: 'chart-line',
+            Profile: 'account-circle-outline',
+          };
+          const iconName = icons[route.name as keyof typeof icons];
           const label = options.tabBarLabel?.toString() ?? route.name;
 
           return (

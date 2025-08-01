@@ -27,21 +27,23 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.5",
+    "react-native-calendars": "^1.1313.0",
     "react-native-gesture-handler": "~2.24.0",
     "react-native-gifted-charts": "^1.4.63",
     "react-native-paper": "^5.14.5",
+    "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
     "react-native-svg": "15.11.2",
     "react-native-url-polyfill": "^2.0.0",
     "react-native-vector-icons": "^10.3.0",
     "react-native-web": "^0.20.0",
-    "zustand": "^5.0.6",
-    "react-native-reanimated": "~3.17.4"
+    "zustand": "^5.0.6"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/react": "~19.0.10",
+    "@types/react-native-calendars": "^1.1264.7",
     "@types/react-native-vector-icons": "^6.4.18",
     "babel-plugin-module-resolver": "^5.0.2",
     "typescript": "~5.8.3"
