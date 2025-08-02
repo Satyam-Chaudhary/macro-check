@@ -9,6 +9,7 @@ from app.crud import crud_goal
 
 # from app.api.v1.endpoints.auth import get_current_user
 from app.core.dependencies import get_current_user
+from .logs import invalidate_caches
 
 from app.db import models
 
@@ -27,8 +28,7 @@ def create_goal(
     
     goal = crud_goal.create_user_goal(db=db, goal=goal_in, user_id= current_user.id)
     #invalidate cache when a new goal is created everytime
-    cache_key = f"goal:{current_user.id}:{goal_in.date}"
-    redis_client.delete(cache_key)
+    invalidate_caches(user_id=current_user.id, log_date=goal_in.date)
     return goal
 
 

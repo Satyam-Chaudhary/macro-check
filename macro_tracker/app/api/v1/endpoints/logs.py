@@ -22,28 +22,27 @@ router = APIRouter()
 # In app/api/v1/endpoints/logs.py
 
 def invalidate_caches(user_id: int, log_date: date):
-    """Helper function to clear all relevant caches for a given day with debug logging."""
-    print("\n--- INVALIDATING CACHES ---")
+    """
+    Helper function to clear all relevant caches after a data change.
+    """
+    print(f"--- INVALIDATING CACHES for user {user_id} on date {log_date} ---")
     
-    # 1. Construct all the keys exactly as they are in the GET endpoints
+    # 1. Invalidate the specific daily caches
     logs_cache_key = f"logs:{user_id}:{log_date}"
-    
-    end_date = log_date
-    start_date = end_date - timedelta(days=6)
-    weekly_cache_key = f"summary_v3:{user_id}:{start_date}:{end_date}"
-    
     daily_cache_key = f"daily_summary:{user_id}:{log_date}"
+    redis_client.delete(logs_cache_key, daily_cache_key)
+    print(f"  - Deleted daily keys for {log_date}")
 
-    # 2. Print the keys we are about to delete
-    print(f"  - Attempting to delete key: {logs_cache_key}")
-    print(f"  - Attempting to delete key: {weekly_cache_key}")
-    print(f"  - Attempting to delete key: {daily_cache_key}")
+    # 2. Invalidate ALL weekly summaries for the user
+    #    This is more robust as it doesn't need to guess the exact date range.
+    weekly_summary_pattern = f"summary_v3:{user_id}:*"
+    deleted_count = 0
+    for key in redis_client.scan_iter(weekly_summary_pattern):
+        redis_client.delete(key)
+        deleted_count += 1
     
-    # 3. Call delete and print how many keys were actually deleted
-    keys_to_delete = [logs_cache_key, weekly_cache_key, daily_cache_key]
-    num_deleted = redis_client.delete(*keys_to_delete)
-    
-    print(f"--- Redis reported {num_deleted} key(s) deleted for date: {log_date} ---\n")
+    if deleted_count > 0:
+        print(f"  - Deleted {deleted_count} weekly summary key(s) matching '{weekly_summary_pattern}'")
 
 @router.post("/manual", response_model=Log)
 def create_manual_log_entry(
