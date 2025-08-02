@@ -6,7 +6,7 @@ from collections import defaultdict
 
 from app.db.session import get_db, redis_client
 from app.db import models
-from app.schemas.analytics import WeeklySummary, DailySummary
+from app.schemas.analytics import DailyBreakdownItem, WeeklySummary, DailySummary
 from app.crud import crud_log, crud_goal  
 
 # from app.api.v1.endpoints.auth import get_current_user
@@ -36,21 +36,32 @@ async def get_weekly_summary(
     
     print("--- CACHE MISS - SUMMARY ---")
     
-    # Fetch data for the week
     logs = crud_log.get_logs_by_user_in_date_range(db, user_id=current_user.id, start_date=start_date, end_date=end_date)
     goals = crud_goal.get_goals_by_user_in_date_range(db, user_id=current_user.id, start_date=start_date, end_date=end_date)
     
-    # --- Basic Analytics ---
-    total_logs = len(logs)
-    if total_logs == 0:
-        # If no logs, create a default summary object with a simple message
+    daily_totals = defaultdict(lambda: {"calories": 0, "protein": 0})
+    for log in logs:
+        daily_totals[log.date]["calories"] += log.calories
+        daily_totals[log.date]["protein"] += log.protein
+
+    daily_breakdown = []
+    for i in range(7):
+        current_day = start_date + timedelta(days=i)
+        daily_breakdown.append(
+            DailyBreakdownItem(
+                date=current_day,
+                calories=daily_totals.get(current_day, {}).get("calories", 0)
+            )
+        )
+
+    if not logs:
         summary = WeeklySummary(
             start_date=start_date, end_date=end_date, total_logs=0, total_calories=0,
             avg_daily_calories=0, avg_daily_protein=0, avg_daily_carbs=0, avg_daily_fat=0,
             days_calorie_goal_met=0, avg_calorie_surplus_deficit=0, avg_protein_surplus_deficit=0,
-            natural_language_summary="No food was logged this week. Log some meals to get a summary!"
+            natural_language_summary="No food was logged this week. Log some meals to get a summary!",
+            daily_breakdown=daily_breakdown # <-- Was missing
         )
-        
         redis_client.set(cache_key, summary.model_dump_json(), ex=3600)
         return summary
         
@@ -59,13 +70,7 @@ async def get_weekly_summary(
     num_days_with_logs = len(set(log.date for log in logs))
     
     goals_dict = {goal.date: goal for goal in goals}
-    daily_totals = defaultdict(lambda: {"calories": 0, "protein": 0})
-    for log in logs:
-        daily_totals[log.date]["calories"] += log.calories
-        daily_totals[log.date]["protein"] += log.protein
-
-    calorie_diffs = []
-    protein_diffs = []
+    calorie_diffs, protein_diffs = [], []
     days_calorie_goal_met = 0
     
     for day_date, totals in daily_totals.items():
@@ -73,15 +78,13 @@ async def get_weekly_summary(
             goal = goals_dict[day_date]
             calorie_diffs.append(totals["calories"] - goal.calories)
             protein_diffs.append(totals["protein"] - goal.protein)
-            # goal met if within a tolerance range, e.g., +/- 100 calories
             if abs(totals["calories"] - goal.calories) <= 100:
                 days_calorie_goal_met += 1
 
-    
     numerical_summary = WeeklySummary(
         start_date=start_date,
         end_date=end_date,
-        total_logs=total_logs,
+        total_logs=len(logs),
         total_calories=total_calories,
         avg_daily_calories=total_calories / num_days_with_logs if num_days_with_logs > 0 else 0,
         avg_daily_protein=total_protein / num_days_with_logs if num_days_with_logs > 0 else 0,
@@ -90,17 +93,13 @@ async def get_weekly_summary(
         days_calorie_goal_met=days_calorie_goal_met,
         avg_calorie_surplus_deficit=sum(calorie_diffs) / len(calorie_diffs) if calorie_diffs else 0,
         avg_protein_surplus_deficit=sum(protein_diffs) / len(protein_diffs) if protein_diffs else 0,
-        natural_language_summary="" # Placeholder
+        natural_language_summary="",
+        daily_breakdown=daily_breakdown # <-- Comma was missing before this line
     )
 
-    print("--- CALLING LLM FOR WEEKLY SUMMARY ---")
-    
     llm_summary_text = await llm_client.get_weekly_summary_from_llm(numerical_summary.model_dump())
-    
-    
     final_summary = numerical_summary.model_copy(update={"natural_language_summary": llm_summary_text})
 
-    # Cache the final, complete summary
     redis_client.set(cache_key, final_summary.model_dump_json(), ex=3600)
     
     return final_summary

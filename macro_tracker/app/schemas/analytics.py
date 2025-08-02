@@ -3,6 +3,10 @@ from datetime import date
 from typing import List
 from .log import Log 
 
+class DailyBreakdownItem(BaseModel):
+    date: date
+    calories: float
+
 class WeeklySummary(BaseModel):
     start_date: date
     end_date: date
@@ -18,6 +22,7 @@ class WeeklySummary(BaseModel):
     avg_protein_surplus_deficit: float
 
     natural_language_summary: str
+    daily_breakdown: List[DailyBreakdownItem]
 
 class DailySummary(BaseModel):
     date: date
