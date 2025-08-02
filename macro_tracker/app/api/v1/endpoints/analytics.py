@@ -27,7 +27,7 @@ async def get_weekly_summary(
     end_date = end_date_str
     start_date = end_date - timedelta(days=6)
     
-    cache_key = f"summary_v2:{current_user.id}:{start_date}:{end_date}"
+    cache_key = f"weekly_summary:{current_user.id}"
     cached_summary = redis_client.get(cache_key)
 
     if cached_summary:

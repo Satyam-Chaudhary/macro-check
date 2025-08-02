@@ -28,18 +28,16 @@ def invalidate_caches(user_id: int, log_date: date):
     print(f"--- INVALIDATING CACHES for user {user_id} on date {log_date} ---")
     
     # 1. Invalidate the specific daily caches
-    logs_cache_key = f"logs:{user_id}:{log_date}"
     daily_cache_key = f"daily_summary:{user_id}:{log_date}"
-    deleted_daily = redis_client.delete(logs_cache_key, daily_cache_key)
-    print(f"  - Deleted {deleted_daily} daily key(s) for {log_date}")
+    logs_cache_key = f"logs:{user_id}:{log_date}"
+    redis_client.delete(daily_cache_key, logs_cache_key)
 
-    # 2. Find all weekly summary keys for the user and delete them
-    weekly_summary_pattern = f"summary_v3:{user_id}:*"
-    keys_to_delete = list(redis_client.scan_iter(weekly_summary_pattern))
+    # 2. Invalidate the = weekly summary key
+    weekly_cache_key = f"weekly_summary:{user_id}"
+    redis_client.delete(weekly_cache_key)
     
-    if keys_to_delete:
-        deleted_weekly = redis_client.delete(*keys_to_delete)
-        print(f"  - Found and deleted {deleted_weekly} weekly summary key(s) matching '{weekly_summary_pattern}'")
+    print(f"  - Invalidated daily caches for {log_date}")
+    print(f"  - Invalidated weekly cache: {weekly_cache_key}")
 
 @router.post("/manual", response_model=Log)
 def create_manual_log_entry(
