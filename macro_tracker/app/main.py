@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from datetime import datetime
 
 
 from slowapi.errors import RateLimitExceeded
@@ -16,6 +17,13 @@ app = FastAPI(title="Macro Check API")
 # print(f"INFO:     FastAPI is connecting to database: {settings.DATABASE_URL}")
 # print("---" * 10)
 
+@app.get("/health")
+def health_check():
+    return {
+        "status": "ok",
+        "version": "1.1.0", # We'll use this version number to confirm the deploy
+        "timestamp": datetime.utcnow().isoformat()
+    }
 
 
 # add limiter to app's state and register the exception handler
