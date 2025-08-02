@@ -32,34 +32,24 @@ export const useFoodLogs = (options?: { optimistic?: boolean; onSuccessCallback?
     Alert.alert("Error", message);
   };
 
-   const onSuccess = () => {
-    // Invalidate all queries that start with 'dailySummary' or 'logHistory'
-    queryClient.invalidateQueries({ 
-      predicate: (query) => 
-        query.queryKey[0] === 'dailySummary' || query.queryKey[0] === 'logHistory' 
-    });
+  const onMutationSuccess = (logDate: string) => {
+    // This helper function will now be used by all create/update mutations
+    queryClient.invalidateQueries({ queryKey: ['dailySummary', logDate] });
+    queryClient.invalidateQueries({ queryKey: ['logHistory', logDate] });
+    // queryClient.invalidateQueries({ queryKey: ['weeklySummary'] }); 
     if (onSuccessCallback) onSuccessCallback();
   };
 
+
   const logManuallyMutation = useMutation({
     mutationFn: postManualLog,
-    onSuccess: (_data, variables) => {
-      const logDate = variables.date;
-      queryClient.invalidateQueries({ queryKey: ['dailySummary', logDate] });
-      queryClient.invalidateQueries({ queryKey: ['logHistory', logDate] });
-      if (onSuccessCallback) onSuccessCallback();
-    },
+    onSuccess: (_data, variables) => onMutationSuccess(variables.date),
     onError: handleError,
   });
 
   const logWithAiMutation = useMutation({
     mutationFn: postAiLog,
-    onSuccess: (_data, variables) => {
-      const logDate = variables.date;
-      queryClient.invalidateQueries({ queryKey: ['dailySummary', logDate] });
-      queryClient.invalidateQueries({ queryKey: ['logHistory', logDate] });
-      if (onSuccessCallback) onSuccessCallback();
-    },
+    onSuccess: (_data, variables) => onMutationSuccess(variables.date),
     onError: handleError,
   });
 
@@ -91,8 +81,7 @@ export const useFoodLogs = (options?: { optimistic?: boolean; onSuccessCallback?
     // onSettled runs after success or error, ensuring data is eventually consistent
     onSettled: (_data, _error, variables) => {
       const logDate = variables.date;
-      queryClient.invalidateQueries({ queryKey: ['logHistory', logDate] });
-      queryClient.invalidateQueries({ queryKey: ['dailySummary', logDate] });
+      onMutationSuccess(logDate);
     },
   });
 

@@ -9,6 +9,10 @@ export interface Log { // Add export here
   carbs: number;
   fat: number;
 }
+interface DailyBreakdownItem {
+  date: string;
+  calories: number;
+}
 export interface DailySummary {
   date: string;
   goal_calories: number;
@@ -24,4 +28,16 @@ export interface DailySummary {
   actual_fat: number;
   remaining_fat: number;
   logs: Log[];
+}
+
+export interface WeeklySummary {
+  start_date: string;
+  end_date: string;
+  total_logs: number;
+  avg_daily_calories: number;
+  avg_daily_protein: number;
+  days_calorie_goal_met: number;
+  avg_calorie_surplus_deficit: number;
+  natural_language_summary: string;
+  daily_breakdown: DailyBreakdownItem[];
 }

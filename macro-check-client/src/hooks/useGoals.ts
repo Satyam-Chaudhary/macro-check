@@ -15,19 +15,16 @@ export const useGoals = (onSuccessCallback: () => void) => {
 
   const { mutate: setGoal, isPending: isLoading } = useMutation({
     mutationFn: postGoal,
-    // This onSuccess block is the key
     onSuccess: (newGoal, variables) => {
       const goalDate = variables.date;
       const queryKey = ['dailySummary', goalDate];
 
       // Manually update the 'dailySummary' cache
       queryClient.setQueryData<DailySummary | undefined>(queryKey, (oldData) => {
-        // If there was no data before, we can't update it
         if (!oldData) {
-            // We can choose to refetch or construct a new summary object.
-            // For now, we'll just invalidate to trigger a full refetch in this edge case.
-            queryClient.invalidateQueries({ queryKey });
-            return undefined;
+          // If there's no old data, just invalidate to trigger a full refetch
+          queryClient.invalidateQueries({ queryKey });
+          return undefined;
         }
 
         // If old data exists, update it with the new goal values
@@ -39,6 +36,10 @@ export const useGoals = (onSuccessCallback: () => void) => {
           goal_fat: newGoal.fat,
         };
       });
+      
+      // Also invalidate the weekly summary so it gets a fresh AI response
+      queryClient.invalidateQueries({ queryKey: ['weeklySummary'] });
+      // ---------------------
 
       onSuccessCallback();
     },
