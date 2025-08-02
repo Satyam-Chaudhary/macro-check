@@ -10,6 +10,7 @@ import { format, parseISO } from 'date-fns';
 export default function AnalyticsScreen() {
   const theme = useTheme<AppTheme>();
   const { data: summary, isLoading, isError, refetch, isRefetching } = useWeeklySummary();
+  
 
   if (isLoading) {
     return <View style={styles.centerContainer}><ActivityIndicator animating={true} /></View>;
@@ -28,6 +29,7 @@ export default function AnalyticsScreen() {
     value: day.calories,
     label: format(parseISO(day.date), 'EEE'), // Format date string to day name
   }));
+  
 
   const markdownStyles = StyleSheet.create({
     body: {
@@ -76,11 +78,11 @@ export default function AnalyticsScreen() {
 
       <Card style={styles.card}>
         <Card.Title title="Calorie Intake (Last 7 Days)" />
-        <Card.Content>
-          <View style={{ paddingLeft: 10, paddingRight: 20 }}>
+        <Card.Content style={{ paddingRight: 10 }}>
+          <View style={{ paddingLeft: 10, paddingRight: 20, paddingBottom: 40, overflow:'hidden' }} >
             <LineChart
               data={chartData}
-              height={300}
+              height={220}
               color={theme.colors.primary}
               thickness={3}
               spacing={50}
@@ -91,7 +93,6 @@ export default function AnalyticsScreen() {
               xAxisLabelTextStyle={{ color: theme.colors.onSurfaceVariant }}
               rulesType="dashed"
               rulesColor={theme.colors.surfaceDisabled}
-
             />
           </View>
         </Card.Content>
