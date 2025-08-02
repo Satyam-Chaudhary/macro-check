@@ -48,7 +48,7 @@ This repository contains the **complete source code** for both the **mobile appl
 <div align="center">
 
 ### Light Mode
-<img src="./assets/screenshots/Onboarding.png" width="160" alt="Onboarding" />
+<img src="./assets/screenshots/OnboardingPage.png" width="160" alt="Onboarding" />
 <img src="./assets/screenshots/DashboardLight.png" width="160" alt="Dashboard Light" />
 <img src="./assets/screenshots/foodLoggingLight.png" width="160" alt="Food Logging Light" />
 <img src="./assets/screenshots/analyticsLight.png" width="160" alt="Analytics Light" />
