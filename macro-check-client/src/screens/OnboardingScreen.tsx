@@ -24,9 +24,10 @@ export default function OnboardingScreen() {
       <View style={styles.overlay}>
         
         <View style={styles.contentContainer}>
-          <Text variant="headlineLarge" style={[styles.title, { color: '#FFFFFF' }]}>
-            Welcome to Macro-Check
-          </Text>
+            <Text variant="headlineLarge" style={[styles.title, { color: '#FFFFFF' }]}>
+            Welcome to{'\n'}
+            Macro-Check
+            </Text>
           <Text variant="bodyLarge" style={[styles.subtitle, { color: '#FFFFFF' }]}>
             Your smart assistant for a healthier lifestyle.
           </Text>
