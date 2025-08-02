@@ -57,7 +57,8 @@ async def get_weekly_summary_from_llm(summary_data: dict) -> str:
                 {"role": "system", "content": SUMMARY_SYSTEM_PROMPT},
                 {"role": "user", "content": user_content}
             ],
-            temperature=0.7, # this will add some creativity
+            temperature=0.7, # this will add some creativity,
+            max_tokens= 256,
         )
         
         return completion.choices[0].message.content.strip()
