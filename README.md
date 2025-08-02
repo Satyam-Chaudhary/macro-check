@@ -43,18 +43,25 @@ This repository contains the **complete source code** for both the **mobile appl
 
 ## 📱 App Preview
 
-> *(Screenshots of the application's key features)*
+> Experience Macro-Check's intuitive interface in both light and dark modes.
 
-## Light Mode
-| Onboarding | Dashboard | Food Logging | Analytics | History | Login |
-|------------|-----------|--------------|-----------|----------|--------|
-| ![Onboarding Screen](./assets/screenshots/Onboarding.png) | ![Dashboard View](./assets/screenshots/DashboardLight.png) | ![Food Logging](./assets/screenshots/foodLoggingLight.png) | ![Analytics View](./assets/screenshots/analyticsLight.png) | ![History View](./assets/screenshots/historyLight.png) | ![Login Screen](./assets/screenshots/login.png) |
+<div align="center">
 
-## Dark Mode
-| Dashboard | Food Logging | Analytics | History | Login |
-|-----------|--------------|-----------|----------|--------|
-| ![Dashboard View](./assets/screenshots/DashboardDark.png) | ![Food Logging](./assets/screenshots/foodLoggingDark.png) | ![Analytics View](./assets/screenshots/analyticsDark.png) | ![History View](./assets/screenshots/historyDark.png) | ![Login Screen](./assets/screenshots/login.png) |
+### Light Mode
+<img src="./assets/screenshots/Onboarding.png" width="160" alt="Onboarding" />
+<img src="./assets/screenshots/DashboardLight.png" width="160" alt="Dashboard Light" />
+<img src="./assets/screenshots/foodLoggingLight.png" width="160" alt="Food Logging Light" />
+<img src="./assets/screenshots/analyticsLight.png" width="160" alt="Analytics Light" />
+<img src="./assets/screenshots/historyLight.png" width="160" alt="History Light" />
 
+### Dark Mode
+<img src="./assets/screenshots/DashboardDark.png" width="160" alt="Dashboard Dark" />
+<img src="./assets/screenshots/foodLoggingDark.png" width="160" alt="Food Logging Dark" />
+<img src="./assets/screenshots/analyticsDark.png" width="160" alt="Analytics Dark" />
+<img src="./assets/screenshots/historyDark.png" width="160" alt="History Dark" />
+<img src="./assets/screenshots/login.png" width="160" alt="Login" />
+
+</div>
 
 ---
 
